@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script  src="http://localhost:8000/socket.io/socket.io.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <title>RealChat</title>
+</head>
+<style>
+   body{
+    
+ background-color:rgb(167, 167, 221);
+   } 
+   .body{
+    width: 40vw;
+    margin: auto;
+    box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
+    background-color: rgba(255, 255, 255, 0.305);
+    padding: 20px;
+   }
+    .logo{
+        width: 50px;
+        height: 50px;
+       border-radius: 50%;
+    }
+    .nabvar{
+        text-align: center;
+        width: 40vw;
+        height: 20vh;
+        margin: auto;
+       border: 2px solid white;
+       padding: 5px 0px ;
+     
+    }
+    .nabvar>h1{
+        color: rgb(64, 58, 134);
+    }
+    .send{
+        /* text-align: center; */
+        /* display: flex; */
+        width: 40vw;
+        height: 30px;
+        margin: auto;
+    
+    }
+    #message{
+        width: 38vw;
+        height: 30px;
+        font-size: 16px;
+        border-radius: 5px;
+        /* padding: 5px; */
+       
+    }
+    .container{
+        width: 40vw;
+        height: 60vh;
+        margin: auto;
+        margin: 5px;
+        border-radius: 5px;
+            /* border: 2px solid blue; */
+            border-top: none; 
+            overflow: auto;
+    }
+    #button{
+
+height: 35px;
+font-size: 16px;
+border-radius: 50%;
+border: none;
+    }
+    .message{
+        left: 0%;
+        color: black;
+        border: 1px solid rgb(113, 113, 225);
+        /* width: auto; */
+        padding:5px 10px;
+        border-radius: 5px;
+        background-color:white;
+        color: black;
+    }
+    .left{
+        float: left;
+        clear: both;
+        color: rgb(45, 29, 220);
+        background-color: white;
+    }
+    .right{
+        float: right;
+        clear: both;
+        /* right: -10px; */
+       
+    }
+    .formobject{
+        display: flex;
+        justify-content: space-between;
+    }
+</style>
+<body>
+    <div class="body">
+        <div class="nabvar">
+            <img src="logotalk.webp" class="logo">
+            <h1>welcome to iChat App</h1>
+        </div>
+        <div class="container">
+       
+    
+        </div>
+        <div class="send">
+            <form class="formobject">
+                <div>     <textarea type="text" name="message" id="message"></textarea></div>
+                <div>   
+                    <button  id="button" > <i class="fa-regular fa-paper-plane"></i></button></div>
+           
+             
+            </form>
+            
+    
+        </div>
+    </div>
+    
+    
+</body>
+<script>
+    // const io = require("socket.io")(8000)
+const socket = io('http://localhost:8000')
+    const form = document.querySelector(".formobject")
+    const messageinp = document.querySelector("#message")
+    const container = document.querySelector(".container")
+
+    const append=(message,position)=>{
+        // console.log(message,position)
+        const messageelement = document.createElement("div")
+        messageelement.innerText=message;
+        messageelement.classList.add("message")
+        messageelement.classList.add(position)
+        container.append(messageelement)
+
+    }
+
+    const name = prompt("Enter your name to join")
+    socket.emit("new_user",name)
+
+    socket.on('user_join',name=>{
+        append(`${name} join the chat`,'right')
+    })
+    socket.on('receive',data=>{
+        console.log(data)
+        append(`${data.name}:${data.message}`,'left')
+    })
+    socket.on('left',name=>{
+        append(`${name} left to the chat`,'right')
+    })
+    form.addEventListener("submit",(e)=>{
+        e.preventDefault()
+        var message = messageinp.value
+        // console.log(message)
+        append(`You:${message}`,'right')
+        socket.emit('send',message)
+        messageinp.value=''
+    })
+</script>
+</html>
